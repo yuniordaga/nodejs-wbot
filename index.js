@@ -1,19 +1,29 @@
 // usamos las dependencias venom-bot y child-process
 const venom = require('venom-bot');   //bot WhatsApp se debe instalar ---https://github.com/orkestral/venom
-const spawn =require('child_process').spawn;  //dependencia propia de nodejs permite usar spawn
 
 // esta funcion  se conecta al script de python y lo ejecuta
 function ejecuta_script_python() {   
-    const process =spawn('python',['./dash.py']);
-    process.stdout.on('data',data=>{
-        if (error) throw error;
-                console.log("finished"); //proceso ocurrio con exito y finalizado
-    });
+  const { exec } = require('child_process');
+  exec('python dash.py', (error, stdout, stderr) => {
+          if (error) {
+                  console.error(`error: ${error.message}`);
+                  return;
+           }
+           if (stderr) {
+                   console.error(`stderr: ${stderr}`);
+                  return;
+          }
+          console.log(`stdout:\n${stdout}`);
+          });
 }
 
 //se incia el uso de la dependencia venom-bot instanciando la creacion y sension del client invocando a la funcion client
 venom
-  .create()
+  .create(
+            {
+              browserArgs: ['--no-sandbox'] //esto es lo mas importante para ejecutar el google-chrome en modo root
+            }
+         )
   .then((client) => start(client))
   .catch((error) => {
     console.log(error);    //muestra error en caso de que falle la conexion
